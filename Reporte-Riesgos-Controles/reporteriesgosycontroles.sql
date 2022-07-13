@@ -3,12 +3,10 @@ SELECT
 Creación:
 https://jep.softexpert.com/
 2022-01-04. Andrés Del Río. Consultas estándar de análsis de riesgo y análisis de control combinadas.
-Versión: 2.1.6
-Panel de análisis: REPRIECON-Reporte Riesgos y Controles
+Panel de Análisis: REPRIECON - Reporte de Riesgos y Controles
 
 Modificaciones:
-<AAAA-MM-DD>. Autor. Descripción
-<AAAA-MM-DD>. Autor. Descripción
+2022-07-13. Andrés Del Río. Inclusión de atributos asociados a elementos. Los atributos son "Relación con Proveedor", "Ubicación" y "Responsable"
 **/
 
 
@@ -334,6 +332,62 @@ FROM
         PMAPROC.IDACTIVITY AS IDPROCESS,
         PMAPROC.NMACTIVITY AS NMPROCESS,
         RIRISKANA.CDRISKANABASE,
+
+        (CASE 
+            WHEN RISKANA.FGRISKANAPARENT=2 THEN (SELECT
+                GAT.NMVALUE
+            FROM
+                RIPLANITEM RPI 
+            INNER JOIN
+                RIITEM RR 
+                    ON RR.CDITEM=RPI.CDITEM
+            INNER JOIN
+                GNASSOC IA
+                    ON IA.CDASSOC = RR.CDASSOC
+            INNER JOIN
+                GNASSOCATTRIB GAT
+                    ON GAT.CDASSOC = IA.CDASSOC
+            WHERE
+                GAT.CDATTRIBUTE = 2
+                AND RPI.CDASSOC=RISKANA.CDASSOC) ELSE '' END ) ATRIBUTO_RELACION_CON_PROVEEDOR,
+
+        (CASE 
+            WHEN RISKANA.FGRISKANAPARENT=2 THEN (SELECT
+                GAT.NMVALUE
+            FROM
+                RIPLANITEM RPI 
+            INNER JOIN
+                RIITEM RR 
+                    ON RR.CDITEM=RPI.CDITEM
+            INNER JOIN
+                GNASSOC IA
+                    ON IA.CDASSOC = RR.CDASSOC
+            INNER JOIN
+                GNASSOCATTRIB GAT
+                    ON GAT.CDASSOC = IA.CDASSOC
+            WHERE
+                GAT.CDATTRIBUTE = 3
+                AND RPI.CDASSOC=RISKANA.CDASSOC) ELSE '' END ) ATRIBUTO_UBICACION,
+
+                (CASE 
+            WHEN RISKANA.FGRISKANAPARENT=2 THEN (SELECT
+                GAT.NMVALUE
+            FROM
+                RIPLANITEM RPI 
+            INNER JOIN
+                RIITEM RR 
+                    ON RR.CDITEM=RPI.CDITEM
+            INNER JOIN
+                GNASSOC IA
+                    ON IA.CDASSOC = RR.CDASSOC
+            INNER JOIN
+                GNASSOCATTRIB GAT
+                    ON GAT.CDASSOC = IA.CDASSOC
+            WHERE
+                GAT.CDATTRIBUTE = 4
+                AND RPI.CDASSOC=RISKANA.CDASSOC) ELSE '' END ) ATRIBUTO_RESPONSABLE,
+
+
         (CASE 
             WHEN RISKANA.FGRISKANAPARENT=1 THEN (SELECT
                 IDPLAN || ' - ' || NMPLAN 
@@ -1163,6 +1217,3 @@ LEFT JOIN
             OR 1=-1
         )
     ))) CONTROLES ON RIESGOS.IDRISKANALYSIS = CONTROLES.IDRISKANALYSIS
-
-    
- 
